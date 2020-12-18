@@ -1,0 +1,14 @@
+# Galego
+A aplicación permitirá rexistrar os libros que posúe un usuario.
+Os libros rexistraranse co título e poderase indicar a data de inicio de lectura e a data de fin.
+A aplicación permitirá filtar por libros lidos nun ano indicado, mostrando a cantidade de libros lidos nese ano.
+
+# Castellano
+La aplicación permitirá registrar los libros que posee un usuario.
+Los libros se registrarán con el título y se podrá indicar la fecha de inicio de lectura y la fecha de fin.
+La aplicación permitirá filtrar por libros leídos en un año indicado, mostrando la cantidad de libros leídos en ese año.
+
+# English
+The app will allow to register the user's books.
+The books will be registered with title and it will be possible to indicate the start reading date and the ending date.
+The app will allow to filter by read books by indicated year, showing the amount of read book that year.
