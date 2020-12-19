@@ -83,36 +83,41 @@ class Book:
 
     def validations(self):
         if len(self.title.get()) != 0 and len(self.start_date.get()) != 0:
-            # return self.validate_title() and self.validate_start_date()
             return self.validate_start_date()
 
-    # def validate_title(self):
-    #     return len(self.title.get()) != 0
+    def validate_start_date(self, date=None):
+        if not date:
+            start_date = self.start_date.get()
+        else:
+            start_date = date
 
-    def validate_start_date(self):
-        start_date = self.start_date.get()
-        match = re.search('\d{1,2}/\d{1,2}/\d{4}', self.start_date.get())
+        match = re.search('\d{1,2}/\d{1,2}/\d{4}', start_date)
         
         if match:
             return True
         
         return False
 
-    def validate_end_date(self):
-        start_date = self.end_date.get()
-        match = re.search('\d{1,2}/\d{1,2}/\d{4}', self.end_date.get())
+    def validate_end_date(self, date=None):
+        if not date:
+            end_date = self.end_date.get()
+        else:
+            end_date = date
+
+        match = re.search('\d{1,2}/\d{1,2}/\d{4}', end_date)
         
         if match:
             return True
         
         return False
+
 
     def add_book(self):
         if self.validations():
             if len(self.end_date.get()) == 0:
                 end_date = ''
             else:
-                validated = self.validate_end_date()
+                validated = self.validate_start_date()
                 if validated:
                     end_date = self.end_date.get()
                 else:
@@ -129,8 +134,7 @@ class Book:
             self.start_date.delete(0, END)
             self.end_date.delete(0, END)
         else:
-            self.message['text'] = 'There was an error'
-            print('Error')
+            self.message['text'] = 'There was an error. \nHave you already inserted title and start date?'
 
     def delete_book(self):
         self.message['text'] = ''
@@ -149,19 +153,20 @@ class Book:
 
     def edit_book(self):
         try:
-            self.tree.item(self.tree.selection())['text'][0]
+            self.tree.item(self.tree.selection())['values'][0]
         except IndexError as e:
             self.message['text'] = 'Please, select a record'
             return
         
-        # Old title
-        old_title = self.tree.item(self.tree.selection())['text']
-        old_start_date = self.tree.item(self.tree.selection())['values'][0]
-        # old_end_date = self.tree.item(self.tree.selection())['values'][]
+        old_title = self.tree.item(self.tree.selection())['values'][0]
+        old_start_date = self.tree.item(self.tree.selection())['values'][1]
+        old_end_date = self.tree.item(self.tree.selection())['values'][2]
 
+        # Open a new window to edit a book
         self.edit_window = Toplevel()
         self.edit_window.title = 'Edit book'
 
+        # Old title
         Label(self.edit_window, text='Old title').grid(row=0, column=1)
         Entry(
             self.edit_window,
@@ -185,18 +190,20 @@ class Book:
 
         # New start_date
         Label(self.edit_window, text='New start date').grid(row=3, column=1)
-        Entry(self.edit_window).grid(row=3, column=2)
+        new_start_date = Entry(self.edit_window)
+        new_start_date.grid(row=3, column=2)
 
-        # ToDo
         # Old end_date
-        # Label(self.edit_window, text='Old end date').grid(row=4, column=1)
-        # Entry(self.edit_window, textvariable=StringVar(
-        #         self.edit_window,
-        #         value=old_end_date),
-        #     state='readonly').grid(row=2, column=2)
+        Label(self.edit_window, text='Old end date').grid(row=4, column=1)
+        Entry(self.edit_window, textvariable=StringVar(
+                self.edit_window,
+                value=old_end_date),
+            state='readonly').grid(row=4, column=2)
 
-        # ToDo
         # New end_date
+        Label(self.edit_window, text='New end date').grid(row=5, column=1)
+        new_end_date = Entry(self.edit_window)
+        new_end_date.grid(row=5, column=2)
 
         Button(self.edit_window, text='Update',
             command=lambda: self.edit_records(
@@ -205,14 +212,25 @@ class Book:
                 new_start_date.get(),
                 old_start_date,
                 new_end_date.get(),
-                old_end_date)).grid(row=4, column=2, sticky=W)
+                old_end_date)).grid(row=6, column=2, sticky=W)
 
     def edit_records(self, new_title, old_title, new_start_date, old_start_date, new_end_date, old_end_date):
-        query = 'UPDATE book SET title = ?, start_date = ?, end_date = ? WHERE title = ? AND start_date = ?'
-        parameters = (new_title, new_start_date, new_end_date, old_title, old_start_date)
-        self.run_query(query, parameters)
+        if new_title == '':
+            new_title = old_title
+        if new_start_date == '':
+            new_start_date = old_start_date
+        if new_end_date == '':
+            new_end_date = old_end_date
+
+        if self.validate_start_date(new_start_date) and self.validate_end_date(new_end_date):
+            query = 'UPDATE book SET title = ?, start_date = ?, end_date = ? WHERE title = ? AND start_date = ?'
+            parameters = (new_title, new_start_date, new_end_date, old_title, old_start_date)
+            self.run_query(query, parameters)
+        else:
+            return
+
         self.edit_window.destroy()
-        self.messages['text'] = 'Record updated succesfully!'
+        self.message['text'] = 'Record updated succesfully!'
         self.get_books()
 
 
