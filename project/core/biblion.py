@@ -55,10 +55,10 @@ class Book:
 
         # Table
         self.tree = ttk.Treeview(height=10, columns=("title", "start_date", "end_date"))
-        self.tree.grid(row=5, column=0, columnspan=100)
-        self.tree.heading('title', text='Title', anchor=CENTER)
-        self.tree.heading('start_date', text='Start date', anchor=CENTER)
-        self.tree.heading('end_date', text='End date', anchor=CENTER)
+        self.tree.grid(row=5, column=0, columnspan=2)
+        self.tree.heading('title', text='Title', anchor=W)
+        self.tree.heading('start_date', text='Start date', anchor=W)
+        self.tree.heading('end_date', text='End date', anchor=W)
 
         self.get_books()
 
@@ -76,10 +76,10 @@ class Book:
             self.tree.delete(element)
 
         # quering data
-        query = 'SELECT * FROM book ORDER BY title'
+        query = 'SELECT * FROM book ORDER BY title DESC'
         db_rows = self.run_query(query)
         for row in db_rows:
-            self.tree.insert('', 0, text=row[1], values=row[2])
+            self.tree.insert("", 0, text=row[0], values=(row[1], row[2], row[3]))
 
     def validations(self):
         if len(self.title.get()) != 0 and len(self.start_date.get()) != 0:
