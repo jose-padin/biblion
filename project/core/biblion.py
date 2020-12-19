@@ -135,13 +135,13 @@ class Book:
     def delete_book(self):
         self.message['text'] = ''
         try:
-            self.tree.item(self.tree.selection())['text'][0]
+            self.tree.item(self.tree.selection())['values'][0]
         except IndexError as e:
             self.message['text'] = 'Please, select a record'
             return
         
         self.message['text'] = ''
-        title = self.tree.item(self.tree.selection())['text']
+        title = self.tree.item(self.tree.selection())['values'][0]
         query = 'DELETE FROM book WHERE title = ? LIMIT 1'
         self.run_query(query, (title,))
         self.message['text'] = f'Record {title} deleted'
