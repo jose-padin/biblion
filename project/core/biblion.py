@@ -12,6 +12,9 @@ class Book:
     def __init__(self, window):
         self.window = window
         self.window.title('Biblion')
+
+        # To set the width and height of the window
+        # self.window.geometry('1000x800')
     
         # Creating a frame container
         frame = LabelFrame(self.window, text='Register a new read book')
@@ -49,6 +52,17 @@ class Book:
             sticky=W+E
         )
 
+        # Filter by year
+        Label("", text='Year to filter').grid(row=7, column=0)
+        self.filter_entry = Entry(self.window)
+        self.filter_entry.grid(row=7, column=1)
+
+        ttk.Button(text='Filter', command=self.filter).grid(
+            row=7,
+            column=2,
+            sticky=W+E
+        )
+
         # Output messages
         self.message = Label(text='', fg='red')
         self.message.grid(row=3, column=0, columnspan=2, sticky=W+E)
@@ -61,6 +75,41 @@ class Book:
         self.tree.heading('end_date', text='End date', anchor=W)
 
         self.get_books()
+
+    def filter(self):
+        year = self.filter_entry.get()
+        if self.validate_year(year):
+            window_filter = Toplevel(self.window)
+            window_filter.title(f'Filter books. Year {year}')
+            query = f'SELECT * FROM book WHERE end_date LIKE "%{year}" ORDER BY title DESC'
+            parameters = (year,)
+            result = self.run_query(query)
+
+            tree = ttk.Treeview(window_filter, columns=('title', 'date_start', 'date_end'), show='headings')
+            tree.grid(row=8, column=0, sticky=W+E)
+            tree.heading('title', text='Title')
+            tree.heading('date_start', text='Date start reading')
+            tree.heading('date_end', text='Date end reading')
+
+            total = 0
+            for i, row in enumerate(result):
+                tree.insert("", 0, values=(row[1], row[2], row[3]))
+                total = i+1
+
+            label_total = Label(window_filter, text=f'Total books read in the year {year}')
+            label_total.grid(row=9, column=0)
+            entry_total = Entry(
+                window_filter,
+                textvariable=StringVar("", total),
+                state='readonly',
+                justify='center')
+            entry_total.grid(row=9, column=1)
+
+    def validate_year(self, year):
+        match = re.search('\d{4}', year)
+        if match:
+            return True
+        return False
 
     def run_query(self, query, parameters=()):
         with sqlite3.connect(self.db_name) as conn:
@@ -75,7 +124,7 @@ class Book:
         for element in records:
             self.tree.delete(element)
 
-        # quering data
+        # querying data
         query = 'SELECT * FROM book ORDER BY title DESC'
         db_rows = self.run_query(query)
         for row in db_rows:
@@ -95,7 +144,6 @@ class Book:
         
         if match:
             return True
-        
         return False
 
     def validate_end_date(self, date=None):
@@ -108,7 +156,6 @@ class Book:
         
         if match:
             return True
-        
         return False
 
 
