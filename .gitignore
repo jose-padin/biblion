@@ -1,0 +1,16 @@
+.env
+.git/
+.pgpass
+.tags
+.vscode/
+
+files/
+.csv
+*~
+*.backup
+*.ignore
+*.log
+*.pid
+*.pyc
+__pycache__
+db.sqlite3
