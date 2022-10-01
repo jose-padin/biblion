@@ -1,3 +1,4 @@
+import csv
 import re
 import sqlite3
 
@@ -49,6 +50,13 @@ class Book:
         ttk.Button(text='Edit', command=self.edit_book).grid(
             row=6,
             column=1,
+            sticky=W+E
+        )
+
+        # Button export to csv
+        ttk.Button(text='Export file', command=self.csv_export).grid(
+            row=8,
+            column=0,
             sticky=W+E
         )
 
@@ -279,6 +287,14 @@ class Book:
         self.edit_window.destroy()
         self.message['text'] = 'Record updated succesfully!'
         self.get_books()
+
+    def csv_export(self):
+        with sqlite3.connect(self.db_name) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM book")
+            rows = cursor.fetchall()
+            csvWriter = csv.writer(open("core/files/exported.csv", "w"))
+            csvWriter.writerows(rows)
 
 
 if __name__ == '__main__':
