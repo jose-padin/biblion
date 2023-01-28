@@ -7,7 +7,6 @@ from tkinter import ttk
 
 
 class Book:
-
     db_name = 'db.sqlite3'
 
     def __init__(self, window):
@@ -15,7 +14,7 @@ class Book:
         self.window.title('Biblion')
 
         # To set the width and height of the window
-        # self.window.geometry('1000x800')
+        self.window.geometry('1000x800')
     
         # Creating a frame container
         frame = LabelFrame(self.window, text='Register a new read book')
@@ -61,7 +60,9 @@ class Book:
         )
 
         # Filter by year
-        Label("", text='Year to filter').grid(row=7, column=0)
+        # this line stop working with new Python version
+        # Label("", text='Year to filter').grid(row=7, column=0)
+        Label(frame, text='Year to filter').grid(row=7, column=0)
         self.filter_entry = Entry(self.window)
         self.filter_entry.grid(row=7, column=1)
 
