@@ -1,4 +1,5 @@
 import csv
+import os
 import re
 import sqlite3
 
@@ -77,7 +78,10 @@ class Book:
         self.message.grid(row=3, column=0, columnspan=2, sticky=W+E)
 
         # Table
-        self.tree = ttk.Treeview(height=10, columns=("title", "start_date", "end_date"))
+        self.tree = ttk.Treeview(
+            height=10,
+            columns=("title", "start_date", "end_date")
+        )
         self.tree.grid(row=5, column=0, columnspan=2)
         self.tree.heading('title', text='Title', anchor=W)
         self.tree.heading('start_date', text='Start date', anchor=W)
@@ -94,7 +98,11 @@ class Book:
             parameters = (year,)
             result = self.run_query(query)
 
-            tree = ttk.Treeview(window_filter, columns=('title', 'date_start', 'date_end'), show='headings')
+            tree = ttk.Treeview(
+                window_filter,
+                columns=('title', 'date_start', 'date_end'),
+                show='headings'
+            )
             tree.grid(row=8, column=0, sticky=W+E)
             tree.heading('title', text='Title')
             tree.heading('date_start', text='Date start reading')
@@ -105,7 +113,10 @@ class Book:
                 tree.insert("", 0, values=(row[1], row[2], row[3]))
                 total = i+1
 
-            label_total = Label(window_filter, text=f'Total books read in the year {year}')
+            label_total = Label(
+                window_filter,
+                text=f'Total books read in the year {year}'
+            )
             label_total.grid(row=9, column=0)
             entry_total = Entry(
                 window_filter,
@@ -137,7 +148,9 @@ class Book:
         query = 'SELECT * FROM book ORDER BY title DESC'
         db_rows = self.run_query(query)
         for row in db_rows:
-            self.tree.insert("", 0, text=row[0], values=(row[1], row[2], row[3]))
+            self.tree.insert(
+                "", 0, text=row[0], values=(row[1], row[2], row[3])
+            )
 
     def validations(self):
         if len(self.title.get()) != 0 and len(self.start_date.get()) != 0:
@@ -270,7 +283,15 @@ class Book:
                 new_end_date.get(),
                 old_end_date)).grid(row=6, column=2, sticky=W)
 
-    def edit_records(self, new_title, old_title, new_start_date, old_start_date, new_end_date, old_end_date):
+    def edit_records(
+        self,
+        new_title,
+        old_title,
+        new_start_date,
+        old_start_date,
+        new_end_date,
+        old_end_date
+    ):
         if new_title == '':
             new_title = old_title
         if new_start_date == '':
@@ -278,9 +299,18 @@ class Book:
         if new_end_date == '':
             new_end_date = old_end_date
 
-        if self.validate_start_date(new_start_date) and self.validate_end_date(new_end_date):
+        if (
+            self.validate_start_date(new_start_date) and
+            self.validate_end_date(new_end_date)
+        ):
             query = 'UPDATE book SET title = ?, start_date = ?, end_date = ? WHERE title = ? AND start_date = ?'
-            parameters = (new_title, new_start_date, new_end_date, old_title, old_start_date)
+            parameters = (
+                new_title,
+                new_start_date,
+                new_end_date,
+                old_title,
+                old_start_date
+            )
             self.run_query(query, parameters)
         else:
             return
@@ -290,6 +320,13 @@ class Book:
         self.get_books()
 
     def csv_export(self):
+        file_path = "core/files/exported.csv"
+
+        if not os.path.exists(file_path):
+            os.makedirs("core/files/")
+            with open(file_path, "w"):
+                pass
+
         with sqlite3.connect(self.db_name) as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM book")
